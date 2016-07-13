@@ -15,7 +15,7 @@
       this.searchValue = document.querySelector('.search__input');
       this.queryResults = document.querySelector( '.output' );
       this.error = document.querySelector('.search__error-msg');
-      this.errorMsg = 'Please make sure you enter a valid search term';
+      this.errorMsg = 'Sorry, no results found.';
 
       //call the addEvent method
       this.addEvent( this.searchForm, 'submit', this.getQuery.bind(_this) );
@@ -32,6 +32,7 @@
             queryEndPoint = 'http://www.bbc.co.uk/radio/programmes/a-z/by/'+ searchValue +'/current.json?page=1&limit=10';
 
         if( searchValue === ''){
+          _this.queryResults.innerHTML = '';
           return;
         }
 
@@ -39,7 +40,6 @@
 
         clearTimeout(this.timeout);
 
-        //to avoid multiple search at the same time lets have a type delay.
         this.timeout = window.setTimeout(function () {
           $.ajax( {
               type: 'GET',
@@ -53,38 +53,40 @@
 
               },
               error: function ( error ) {
-                _this.error.innerHTML = _this.errorMsg;
-                _this.searchValue.classList.remove('search__input--spinner');
+                dataError( error );
               }
 
           });
 
           function dataSuccess(data){
 
-            //little check to ensure we have data or something in the input box.
-            if( !data || _this.searchValue.value === '') {
+            if(!data){
               return;
             }
 
-            //lets store the feed in an array so we can let the view deal with looping with the result.
+            //lets store the feed in an array so we can let the
             var items = [],
                 template = Handlebars.compile( $( '#output-results' ).html() ),
-                html = template( context ),
                 context = {
                   'programmes': items
-                };
+                },
+                html;
 
-
-            data.atoz.tleo_titles.forEach( function( item ) {
-              items.push(item.item);
+            data.atoz.tleo_titles.forEach( function( programme ) {
+              items.push(programme.programme);
             });
 
             //Handlebars to update the view
-
+            html = template( context );
             _this.queryResults.innerHTML = html;
             _this.error.innerHTML = '';
           }
         }, 1000);
+
+        function dataError( error ){
+          _this.error.innerHTML = _this.errorMsg;
+          _this.searchValue.classList.remove('search__input--spinner');
+        }
     };
 
     /**

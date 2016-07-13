@@ -1,19 +1,21 @@
 .output{
   .output__item{
       color: #fff;
-      background-color: rgba(8, 154, 193, 0.1);
-      margin: 0 0 10px 0;
+      background-color: $light-blue;
+      margin: $size-small $reset;
       display: flex;
-
+      border-top: 1px solid #ccc;
+      border-bottom: 1px solid #ccc;
+      
       .output__item--text{
         text-align: left;
-        padding: 0 10px;
+        padding: $reset $size-small;
       }
 
       &:hover{
-        	background-color: #337ab7;
-        	text-decoration: none;
-          transition: background 1s;
+        background-color: $medium-blue;
+        text-decoration: none;
+        transition: background 1.5s;
       }
   }
 }
