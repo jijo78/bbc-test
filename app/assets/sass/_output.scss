@@ -1,0 +1,19 @@
+.output{
+  .output__item{
+      color: #fff;
+      background-color: rgba(8, 154, 193, 0.1);
+      margin: 0 0 10px 0;
+      display: flex;
+
+      .output__item--text{
+        text-align: left;
+        padding: 0 10px;
+      }
+
+      &:hover{
+        	background-color: #337ab7;
+        	text-decoration: none;
+          transition: background 1s;
+      }
+  }
+}

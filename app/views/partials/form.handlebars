@@ -1,8 +1,11 @@
-<form action="#" class="form-container" name="input-form">
-  <fieldset class="form-group">
-    <label for="paragraph-input">Find your list of words</label>
-    <textarea placeholder="Enter your text here." class="form-control form-group" id="paragraph-input"></textarea>
-    <input type="submit" class="btn btn-primary btn-lg btn-block btn-submit" value="Output" name="inputBtn"/>
-    <button class="btn btn-danger btn-lg btn-block btn-rst" name="btn-rst">Reset</button>
-  </fieldset>
-</form>
+
+<section class="search">
+    <form action="#" method="GET" class="search__form" role="search" name="input-form">
+    <fieldset class="form-group">
+    	<label for="search" class="hidden">Find a programme</label>
+    	<input type="text" autocomplete="off" name="q" placeholder="Find  your programme..." class="form-control form-group search__input" >
+      <input type="submit" class="btn btn-primary btn-lg btn-block btn-submit search__submit" value="Search" name="inputBtn"/>
+    </fieldset>
+  </form>
+  <p class="search__error-msg"></p>
+</section>

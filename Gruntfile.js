@@ -13,7 +13,11 @@ module.exports = function(grunt) {
                 undef: true,
                 predef: [ 'alert','define', 'module', 'require', 'it', 'expect', 'describe', 'jasmine', 'console', 'class' ],
                 quotmark: true, // Enforce double quotes
-            },
+                globals: {
+                    $: false, //Grunt doesn't know $ is declared in jquery, so keep getting undefined, this line fixes it.
+                    Handlebars: false
+                }
+            }
         },
         watch: {
             files: ['<%= jshint.files %>', 'app/assets/sass/*.scss','app/assets/js/*.js' ],
@@ -55,7 +59,7 @@ module.exports = function(grunt) {
     grunt.registerTask( 'sassWatch', [ 'sass' ] );
 
     // grunt ci
-    grunt.registerTask('default', [ 'sass:dev', 'copy']);
+    grunt.registerTask('default', [ 'sass:dev', 'jshint', 'copy' ]);
     grunt.registerTask('ci', [ 'sass:dev', 'copy']);
 
 };

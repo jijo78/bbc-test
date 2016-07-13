@@ -1,142 +1,108 @@
 (function () {
   /**
-   * This is the TextReader constructor
+   * This is the ProgrammeFinder constructor
    * @constructor
-   * @this {TextReader}
+   * @this {ProgrammeFinder}
    */
-    function TextReader() {
+
+   'use strict';
+
+    function ProgrammeFinder() {
       var _this = this;
 
       //global elements.
-      this.textArea = document.querySelector('#paragraph-input');
-      this.formContainer = document.querySelector('.form-container');
-      this.tableContainer = document.querySelector('.output-table');
-      this.tBody = document.querySelector('.output-text-container');
-      this.outputContainerHeader = document.querySelector('.output-header');
-      this.resetBtn = document.querySelector('.btn-rst');
-      this.inputBtn = document.querySelector('.btn-submit');
+      this.searchForm = document.querySelector( '.search' );
+      this.searchValue = document.querySelector('.search__input');
+      this.queryResults = document.querySelector( '.output' );
+      this.error = document.querySelector('.search__error-msg');
+      this.errorMsg = 'Please make sure you enter a valid search term';
 
-      //function calls
-      this.validateAndSubmit();
-      this.resetBtn.addEventListener('click',_this.resetForm.bind(this), false);
+      //call the addEvent method
+      this.addEvent( this.searchForm, 'submit', this.getQuery.bind(_this) );
+      this.addEvent( this.searchForm, 'keyup', this.getQuery.bind(_this) );
+
     }
 
-    TextReader.prototype.resetForm = function (){
-      var _this = this;
-
-      if(_this.outputContainerHeader || this.tBody){
-        _this.outputContainerHeader.innerHTML = '';
-        _this.tBody.innerHTML = '';
-      }
-
-      _this.formContainer.reset();
-      _this.inputBtn.disabled = false;
-    };
-
     /**
-     * textAreaValue function .
+     * getQuery make the ajax call to /programme a-z feed.
      */
-    TextReader.prototype.output = function () {
-      var _this = this,
-          textAreaValue =  this.textArea.value,
-          sortAlphabetically = textAreaValue.split(' ').sort(),
-          i = 0,
-          j = 0,
-          initial = ['a','b','c','d'],
-          row = this.tBody.insertRow(0),
-          count = {};
+    ProgrammeFinder.prototype.getQuery = function () {
+        var _this = this,
+            searchValue = _this.searchValue.value,
+            queryEndPoint = 'http://www.bbc.co.uk/radio/programmes/a-z/by/'+ searchValue +'/current.json?page=1&limit=10';
 
-          // item      = sortAlphabetically[ i ],
-          // firstChar = item.charAt( 0 ),
-          // outputContainerHeaderTh = document.createElement('th');
-          sortAlphabetically.forEach(function(i){
-            count[i] = (count[i]||0)+1;
+        if( searchValue === ''){
+          return;
+        }
+
+        _this.searchValue.classList.add('search__input--spinner');
+
+        clearTimeout(this.timeout);
+
+        //to avoid multiple search at the same time lets have a type delay.
+        this.timeout = window.setTimeout(function () {
+          $.ajax( {
+              type: 'GET',
+              crossDomain: true,
+              url: queryEndPoint,
+              cache: true,
+              dataType: 'json',
+              success: function ( data ) {
+                dataSuccess(data);
+                _this.searchValue.classList.remove('search__input--spinner');
+
+              },
+              error: function ( error ) {
+                _this.error.innerHTML = _this.errorMsg;
+                _this.searchValue.classList.remove('search__input--spinner');
+              }
+
           });
-          for (var key in count){
-            console.log(key, count[key], key.length);
-            row.insertCell(0).innerHTML = key + '' +count[key].toString();
-            _this.appendContent(_this.tBody, row);
+
+          function dataSuccess(data){
+
+            //little check to ensure we have data or something in the input box.
+            if( !data || _this.searchValue.value === '') {
+              return;
+            }
+
+            //lets store the feed in an array so we can let the view deal with looping with the result.
+            var items = [],
+                template = Handlebars.compile( $( '#output-results' ).html() ),
+                html = template( context ),
+                context = {
+                  'programmes': items
+                };
+
+
+            data.atoz.tleo_titles.forEach( function( item ) {
+              items.push(item.item);
+            });
+
+            //Handlebars to update the view
+
+            _this.queryResults.innerHTML = html;
+            _this.error.innerHTML = '';
           }
+        }, 1000);
     };
 
     /**
-     * validateAndSubmit form element based on two type of validation.
-     * validateInput function check if we enter only letters.
-     * validateWordCount function
+     * addEvent is an helper function that addEventListener to an element
+     * @param  {[type]}   el          HTMLelement
+     * @param  {[type]}   typeOfevent Event
+     * @param  {Function} fn          Function
      */
-    TextReader.prototype.validateAndSubmit = function(){
-      var _this = this,
-          error = document.querySelector('.error'),
-          errorMsg = 'Please make sure you enter only alpha characters and at least 5 words.';
+    ProgrammeFinder.prototype.addEvent = function ( el, typeOfevent ,fn ) {
 
-      //form submit upon checking if input it is valid.
-      _this.formContainer.addEventListener('submit',validateInput,false);
+      el.addEventListener( typeOfevent, function ( event ) {
+        event.preventDefault();
+        event.stopPropagation();
+        fn();
+      });
 
-
-      function validateInput(e){
-        e.preventDefault();
-         var isValid;
-         //lets test that only alpha characters are entered.
-         var regex=/^[a-z]/gi;
-         if (_this.textArea.value.match(regex)){
-              validateWordCount();
-              //error.innerHTML = ' ';
-              isValid = true;
-          }else{
-            error.innerHTML = errorMsg;
-            isValid = false;
-          }
-        return isValid;
-      }
-
-      function validateWordCount(){
-          var input = _this.textArea.value;
-              // remove all extra spaces (double spaces etc)
-              input = input.replace(/(^\s*)|(\s*$)/gi,'');
-              // if two words together count as one
-              input = input.replace(/[ ]{2,}/gi,'' );
-              input = input.replace(/\n /,'\n');
-              let specChars = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/gi;
-
-          if (input.split(' ').length+1 <= 5 || input ==='') {
-              error.innerHTML = errorMsg;
-          }else if (input.split(' ').length >= 500 ) {
-              error.innerHTML = 'Please make sure you enter no more than 500 words.';
-          }else {
-            _this.output();
-            _this.inputBtn.disabled = true;
-
-            // var specCharsCount = input.match(specChars);
-            //
-            // var counts = {};
-            // specCharsCount.forEach(function(x) {
-            //   counts[x] = (counts[x] || 0)+1;
-            // });
-            // specCharsCount.forEach(function(word, i,a,v) {
-            //   console.log(a[i].length);
-            // });
-          }
-      }
     };
 
-    /**
-     * Append HTMLelement.
-     * @param {object} parent - HTMLElement to be appended to.
-     * @param {object} content - HTMLElement to be appended parent.
-     */
-    TextReader.prototype.appendContent = function ( parent, content ) {
-        return parent.appendChild( content );
-    };
 
-    /**
-     * remove HTMLelement.
-     * @param {object} parent - HTMLElement parent of the element to be removed.
-     */
-    TextReader.prototype.removeContent = function ( parent ) {
-      for(var i =0; i< parent.childNodes.length; i++){
-        parent.childNodes[i].remove();
-      }
-    };
-
-    return  new TextReader();
+    return new ProgrammeFinder();
 } )();

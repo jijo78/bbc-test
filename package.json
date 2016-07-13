@@ -9,14 +9,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/jijo78/giuseppe-test.git"
+    "url": "https://github.com/jijo78/bbc-test.git"
   },
   "author": "Giuseppe De Marino",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/jijo78/giuseppe-test/issues"
+    "url": "https://github.com/jijo78/bbc-test/issues"
   },
-  "homepage": "https://github.com/jijo78/giuseppe-test",
+  "homepage": "https://github.com/jijo78/bbc-test",
   "dependencies": {
     "debug": "^2.2.0",
     "grunt": "^1.0.1",
