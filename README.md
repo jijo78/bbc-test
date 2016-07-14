@@ -5,3 +5,4 @@
 ##To run
 * grunt
 * npm start or nodemon
+* http://localhost:3000/
