@@ -19,7 +19,7 @@
 
       //call the addEvent method
       this.addEvent( this.searchForm, 'submit', this.getQuery.bind(_this) );
-      this.addEvent( this.searchForm, 'keyup', this.getQuery.bind(_this) );
+      //this.addEvent( this.searchForm, 'keyup', this.getQuery.bind(_this) );
 
     }
 
@@ -29,8 +29,13 @@
     ProgrammeFinder.prototype.getQuery = function () {
         var _this = this,
             searchValue = _this.searchValue.value,
+            //Limiting the query to 10 for this test, otherwise we would have too many results back.
+            //In real life to deal with this scenario, I would have added a load more button to lazy load more results,
+            //or a pagination component.
             queryEndPoint = 'http://www.bbc.co.uk/radio/programmes/a-z/by/'+ searchValue +'/current.json?page=1&limit=10';
 
+        //If you submit with an empty value do  nothing,
+        //or if we clear the search box, remove the previous search.
         if( searchValue === ''){
           _this.queryResults.innerHTML = '';
           return;
@@ -40,6 +45,8 @@
 
         clearTimeout(this.timeout);
 
+        //Wrapping in a setTimeout function so we can clear if we have a type delay
+        //and not have multiple search going on.
         this.timeout = window.setTimeout(function () {
           $.ajax( {
               type: 'GET',
@@ -50,21 +57,19 @@
               success: function ( data ) {
                 dataSuccess(data);
                 _this.searchValue.classList.remove('search__input--spinner');
-
               },
               error: function ( error ) {
                 dataError( error );
               }
-
           });
 
           function dataSuccess(data){
 
-            if(!data){
+            if( !data ){
               return;
             }
 
-            //lets store the feed in an array so we can let the
+            //lets store the feed in an array so we can let the view deal with the looping.
             var items = [],
                 template = Handlebars.compile( $( '#output-results' ).html() ),
                 context = {
@@ -96,15 +101,12 @@
      * @param  {Function} fn          Function
      */
     ProgrammeFinder.prototype.addEvent = function ( el, typeOfevent ,fn ) {
-
       el.addEventListener( typeOfevent, function ( event ) {
         event.preventDefault();
         event.stopPropagation();
         fn();
       });
-
     };
-
 
     return new ProgrammeFinder();
 } )();
