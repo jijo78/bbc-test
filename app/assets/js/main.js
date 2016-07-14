@@ -19,7 +19,7 @@
 
       //call the addEvent method
       this.addEvent( this.searchForm, 'submit', this.getQuery.bind(_this) );
-      //this.addEvent( this.searchForm, 'keyup', this.getQuery.bind(_this) );
+      this.addEvent( this.searchForm, 'keyup', this.getQuery.bind(_this) );
 
     }
 
