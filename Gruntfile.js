@@ -35,6 +35,18 @@ module.exports = function(grunt) {
                     dest: '<%=outputPath%>/css',
                     ext: '.css'
                 } ]
+            },
+            dist: {
+                options: {
+                    style: 'compressed'
+                },
+                files: [ {
+                    expand: true,
+                    cwd: '<%=staticPath%>/assets/sass',
+                    src: [ '*.scss' ],
+                    dest: '<%=outputPath%>/css',
+                    ext: '.css'
+                } ]
             }
         },
         copy: {
@@ -60,6 +72,6 @@ module.exports = function(grunt) {
 
     // grunt ci
     grunt.registerTask('default', [ 'sass:dev', 'jshint', 'copy' ]);
-    grunt.registerTask('ci', [ 'sass:dev', 'copy']);
+    grunt.registerTask('ci', [ 'sass:dist', 'copy']);
 
 };

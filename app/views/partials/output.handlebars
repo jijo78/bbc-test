@@ -6,7 +6,9 @@
             <div class="output__item--text">
               <h2>\{{ title}}</h2>
               <p>\{{ short_synopsis }}</p>
-              <small>Available on \{{ ownership.service.title }}</small>
+              \{{#if is_available}}
+                <small>Available on \{{ ownership.service.title }}</small>
+              \{{/if}}
             </div>
           </article>
         </a>
